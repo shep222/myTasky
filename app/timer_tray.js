@@ -1,31 +1,47 @@
 const electon = require('electron');
-const { Tray } = electon;
+const { Tray, app, Menu } = electon;
 
 class TimerTray extends Tray {
-    constructor(iconPath, mainWindow){
+    constructor(iconPath, mainWindow) {
         super(iconPath);
-        this.mainWindow = mainWindow
-        this.on('click', this.onClick.bind(this))
+        this.mainWindow = mainWindow;
+
+        this.setToolTip('Timer App');
+        this.on('click', this.onClick.bind(this));
+        this.on('right-click', this.onRightClick.bind(this))
     }
 
-    onClick(event, bounds){
+    onClick(event, bounds) {
         // Click event Bounds
-        const { x,y } = bounds
+        const {x, y} = bounds
         // Window Bounds
-        const { height, width } = this.mainWindow.getBounds();
+        const {height, width} = this.mainWindow.getBounds();
 
         if (this.mainWindow.isVisible()) {
             this.mainWindow.hide()
-        } else{
-            const yPosition = process.platform === 'darwin' ? y : y - height ;
+        } else {
+            const yPosition = process.platform === 'darwin'
+                ? y
+                : y - height;
             this.mainWindow.setBounds({
-                x: x - (width/2),
+                x: x - (width / 2),
                 y: yPosition,
                 height,
                 width
             })
             this.mainWindow.show()
         }
+    }
+
+    onRightClick() {
+        const menuConfig = Menu.buildFromTemplate([
+            {
+                label: 'Quit',
+                click: () => app.quit()
+            }
+        ]);
+
+        this.popUpContextMenu(menuConfig);
     }
 }
 
